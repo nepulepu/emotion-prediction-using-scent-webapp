@@ -11,7 +11,7 @@ import scipy
 from tsfresh import extract_features
 from tsfresh.feature_extraction import ComprehensiveFCParameters
 import tsfresh
-import seaborn as sns
+# import seaborn as sns
 import pickle
 if not st.session_state:
     st.session_state.chart={"Mood":[],"Perfume":[]}
