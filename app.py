@@ -6,7 +6,7 @@ import matplotlib.pyplot as plt
 import numpy as np
 import heartpy as hp
 import scipy
-from pyEDA.main import *
+# from pyEDA.main import *
 from sklearn import preprocessing
 from tsfresh import extract_features
 from tsfresh.feature_extraction import ComprehensiveFCParameters
@@ -21,7 +21,10 @@ def upload_file() :
     with body.container():
         st.title(f"""Hello! thank you for using this app""")
         st.subheader(f"This app will determine your mood based on you physiological data")
+        
         st.write(f'## Please upload csv file contains the physiological data')
+        st.write("Samples data can get it on : https://tinyurl.com/samples-data")
+        
         with st.form(key="form1"):
             file=st.file_uploader("Please upload a csv file containing physiological data",type="csv",key="data")
             gsr_column=st.text_input("what is the column that contains GSR value?")
@@ -64,55 +67,80 @@ def upload_file() :
                     if(not gsr.empty and not hr.empty):
                         gsr=gsr.to_list()
                         hr=hr.to_list()
-                        
-                        
-                            
-                        
 
+                        st.markdown("## the GSR graph is:")
+                        st.line_chart(gsr)
+                        st.markdown("## the HR graph is:")
+                        st.line_chart(hr)                     
+                                                 
                         gsr=scipy.signal.resample(gsr,len(gsr)*128)
                         filt=scipy.signal.medfilt(gsr,kernel_size=128*8+1)
                         gsr=gsr-filt
-                        gsr=(gsr-gsr.min())/(gsr.max()-gsr.min())
-                        gsr=gsr.round(decimals=3)
+                        # gsr=(gsr-gsr.min())/(gsr.max()-gsr.min())
+                        # gsr=gsr.round(decimals=3)
                         
                         hr=scipy.signal.resample(hr,len(hr)*128)
-                        hr=(hr-hr.min())/(hr.max()-hr.min())
-                        hr=hr.round(decimals=3)
+                        # hr=(hr-hr.min())/(hr.max()-hr.min())
+                        # hr=hr.round(decimals=3)
                         numpy_df=pd.DataFrame({'GSR':gsr,'HR':hr})
                         numpy_df["Session"]=1
-                        st.markdown("## the GSR graph after normalized is:")
-                        st.line_chart(gsr)
-                        st.markdown("## the HR graph after normalized is:")
-                        st.line_chart(hr)
-
+                        
                         with st.spinner(text="In progress..."):
                             progress= st.progress(0)
                             progress.progress(20)
 
                             settings = ComprehensiveFCParameters()
                             ex_data = extract_features(numpy_df, column_id="Session")
-                            filter_cols=['GSR__fft_coefficient__attr_"real"__coeff_32',
-                            'GSR__fft_coefficient__attr_"real"__coeff_64',
-                            'HR__cwt_coefficients__coeff_7__w_2__widths_(2, 5, 10, 20)',
-                            'HR__cwt_coefficients__coeff_8__w_2__widths_(2, 5, 10, 20)',
-                            'HR__fft_coefficient__attr_"real"__coeff_7',
-                            'HR__fft_coefficient__attr_"real"__coeff_11',
-                            'HR__fft_coefficient__attr_"real"__coeff_13',
-                            'HR__fft_coefficient__attr_"real"__coeff_69',
-                            'HR__fft_coefficient__attr_"abs"__coeff_59']
-                            sel_data= ex_data[filter_cols]
+                            arousal_filter=['GSR__fft_coefficient__attr_"real"__coeff_78',
+                            'GSR__approximate_entropy__m_2__r_0.3',
+                            'GSR__approximate_entropy__m_2__r_0.9',
+                            'GSR__energy_ratio_by_chunks__num_segments_10__segment_focus_6',
+                            'HR__fft_coefficient__attr_"real"__coeff_19',
+                            'HR__fft_coefficient__attr_"real"__coeff_52',
+                            'HR__fft_coefficient__attr_"abs"__coeff_78',
+                            'HR__fft_coefficient__attr_"angle"__coeff_72']
+                            valence_filter =['GSR__large_standard_deviation__r_0.15000000000000002',
+                            'GSR__binned_entropy__max_bins_10',
+                            'GSR__fft_coefficient__attr_"real"__coeff_53',
+                            'GSR__lempel_ziv_complexity__bins_2',
+                            'GSR__lempel_ziv_complexity__bins_5',
+                            'GSR__lempel_ziv_complexity__bins_10',
+                            'GSR__lempel_ziv_complexity__bins_100',
+                            'HR__fft_coefficient__attr_"real"__coeff_24',
+                            'HR__fft_coefficient__attr_"imag"__coeff_37',
+                            'HR__fft_coefficient__attr_"abs"__coeff_43',
+                            'HR__fft_coefficient__attr_"angle"__coeff_37']
+                            sel_A= ex_data[arousal_filter].copy()
+                            sel_V= ex_data[valence_filter].copy()
                             progress.progress(70)
 
-                            data=sel_data.to_numpy()
-                            loaded_model = pickle.load(open('FYP_RFmodel.pickle', "rb"))
+                            sel_A=sel_A.to_numpy()
+                            sel_V=sel_V.to_numpy()
+                            model_A = pickle.load(open('FYP_RF_A_slice_model.pkl', "rb"))
+                            model_V = pickle.load(open('FYP_RF_V_slice_model.pkl', "rb"))
                             progress.progress(80)
 
-                            prediction=loaded_model.predict_proba(data)
-                            classes = ["activation pleasant (Happy)", "activation unpleasant (Stressed)", "deactivation pleasant (Calm)", "deactivation unpleasant (Depressed)"]
-                            class_simp=["Happy", "Stressed", "Calm", "Depressed"]
-                            mood=classes[np.argmax(prediction)]
-                            mood_simp=class_simp[np.argmax(prediction)]
-                            confidence=np.max(prediction)
+                            A_predict=model_A.predict_proba(sel_A)
+                            V_predict=model_V.predict_proba(sel_V)
+
+                            def class_predict (A,V):
+                                if A==0 and V==0:
+                                    return "activation pleasant (Happy)","Happy"
+                                if A==0 and V==1:
+                                    return "activation unpleasant (Stressed)","Stressed"
+                                if A==1 and V==0:
+                                    return "deactivation pleasant (Calm)","Calm"
+                                if A==1 and V==1:
+                                    return "deactivation unpleasant (Sad)","Sad"
+                                else:
+                                    return None;
+
+                            # classes = ["activation pleasant (Happy)", "activation unpleasant (Stressed)", "deactivation pleasant (Calm)", "deactivation unpleasant (Depressed)"]
+                            # class_simp=["Happy", "Stressed", "Calm", "Depressed"]
+                            # mood=classes[np.argmax(prediction)]
+                            mood,mood_simp=class_predict(np.argmax(A_predict),np.argmax(V_predict))
+                            # mood_simp=class_simp[np.argmax(prediction)]
+                            # confidence=np.max(prediction)
                             progress.progress(100)
                             progress.empty()
                             # st.success('Done!')
