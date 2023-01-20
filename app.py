@@ -30,7 +30,7 @@ def upload_file() :
             gsr_column=st.text_input("what is the column that contains GSR value?")
             ppg_column=st.text_input("what is the column that contains Heart Rate value?")
             submitted=st.form_submit_button()
-            if submitted:
+            if submitted and file:
                 # st.session_state.data=file
                 st.session_state.gsr=gsr_column
                 st.session_state.ppg=ppg_column
@@ -40,6 +40,7 @@ def upload_file() :
                 table=pd.read_csv(file)
                 
                 try:
+                    
                     try:
                     # print(table["Perfume"].unique())
                         perfume=table["Perfume"].unique()
@@ -170,6 +171,8 @@ def upload_file() :
 
                 except:
                     st.error("Something went wrong")
+            elif submitted and not file:
+                st.error("File not found")
                 
                 
 
