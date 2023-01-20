@@ -24,7 +24,7 @@ def upload_file() :
         
         st.write(f'## Please upload csv file contains the physiological data')
         st.write("Samples data can get it on : https://tinyurl.com/samples-data")
-        
+
         with st.form(key="form1"):
             file=st.file_uploader("Please upload a csv file containing physiological data",type="csv",key="data")
             gsr_column=st.text_input("what is the column that contains GSR value?")
@@ -133,7 +133,7 @@ def upload_file() :
                                 if A==1 and V==1:
                                     return "deactivation unpleasant (Sad)","Sad"
                                 else:
-                                    return None;
+                                    return None
 
                             # classes = ["activation pleasant (Happy)", "activation unpleasant (Stressed)", "deactivation pleasant (Calm)", "deactivation unpleasant (Depressed)"]
                             # class_simp=["Happy", "Stressed", "Calm", "Depressed"]
