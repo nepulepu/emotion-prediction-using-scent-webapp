@@ -59,12 +59,18 @@ def upload_file() :
                         gsr=table[gsr_column].copy()
                     except:
                         gsr=pd.DataFrame()
-                        st.error("GSR column not found")
+
+                        gsr_error=st.error("GSR column not found")
+                        # time.sleep(3)
+                        # gsr_error.empty()
                     try:
                         hr=table[ppg_column].copy()
                     except:
                         hr=pd.DataFrame()
-                        st.error("HR column not found")
+
+                        hr_error=st.error("HR column not found")
+                        # time.sleep(3)
+                        # hr_error.empty()
                     if(not gsr.empty and not hr.empty):
                         gsr=gsr.to_list()
                         hr=hr.to_list()
@@ -170,9 +176,14 @@ def upload_file() :
 
 
                 except:
-                    st.error("Something went wrong")
+                    error=st.error("Something went wrong")
+                    # time.sleep(3)
+                    # error.empty()
+
             elif submitted and not file:
-                st.error("File not found")
+                error=st.error("File not found")
+                # time.sleep(3)
+                # error.empty()
                 
                 
 
