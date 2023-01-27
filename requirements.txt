@@ -8,5 +8,5 @@ scipy==1.8.0
 # streamlit==1.17.0
 protobuf<=3.20.1
 streamlit_ext==0.1.5
-tsfresh==0.19.0
+tsfresh==0.20.0
 # ~treamlit==1.17.0
