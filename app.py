@@ -13,7 +13,50 @@ from tsfresh.feature_extraction import ComprehensiveFCParameters
 import tsfresh
 # import seaborn as sns
 import pickle
+<<<<<<< Updated upstream
 if not st.session_state:
+=======
+from PIL import Image
+import io
+from dotenv import load_dotenv
+
+load_dotenv()
+
+
+
+def create_keyfile_dict():
+    variables_keys = {
+        "type": os.getenv("TYPE"),
+        "project_id": os.getenv("PROJECT_ID"),
+        "private_key_id": os.getenv("PRIVATE_KEY_ID"),
+        "private_key": os.getenv("PRIVATE_KEY"),
+        "client_email": os.getenv("CLIENT_EMAIL"),
+        "client_id": os.getenv("CLIENT_ID"),
+        "auth_uri": os.getenv("AUTH_URI"),
+        "token_uri": os.getenv("TOKEN_URI"),
+        "auth_provider_x509_cert_url": os.getenv("AUTH_PROVIDER_X509_CERT_URL"),
+        "client_x509_cert_url": os.getenv("CLIENT_X509_CERT_URL")
+    }
+    return variables_keys
+
+
+if not firebase_admin._apps:
+    cred_object = firebase_admin.credentials.Certificate(
+        create_keyfile_dict())
+    default_app = firebase_admin.initialize_app(cred_object)
+    
+db = firestore.client()
+
+@st.cache(ttl=600)
+def update_data():
+    docs = db.collection("Perfume").get()
+    for doc in docs:
+        temp = doc.to_dict()
+        st.session_state.chart["Mood"].append(temp["Mood"])
+        st.session_state.chart["Perfume"].append(temp["Perfume"])
+
+if "chart" not in st.session_state:
+>>>>>>> Stashed changes
     st.session_state.chart={"Mood":[],"Perfume":[]}
 
 def upload_file() :
