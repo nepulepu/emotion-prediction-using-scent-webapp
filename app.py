@@ -163,6 +163,7 @@ def upload_file() :
             docs = db.collection("Perfume").get()
             for doc in docs:
                 temp = doc.to_dict()
+                st.session_state.chart={"Mood":[],"Perfume":[]}
                 st.session_state.chart["Mood"].append(temp["Mood"])
                 st.session_state.chart["Perfume"].append(temp["Perfume"])  
 
