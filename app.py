@@ -163,8 +163,8 @@ def upload_file() :
             docs = db.collection("Perfume").get()
             for doc in docs:
                 temp = doc.to_dict()
-                st.session_state.chart["Mood"].append(temp["Mood"])
-                st.session_state.chart["Perfume"].append(temp["Perfume"])  
+                st.session_state.chart["Mood"]= temp["Mood"]
+                st.session_state.chart["Perfume"]= temp["Perfume"]  
 
             gsr=scipy.signal.resample(gsr,len(gsr)*128)
             filt=scipy.signal.medfilt(gsr,kernel_size=128*8+1)
