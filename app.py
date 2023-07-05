@@ -262,6 +262,7 @@ def upload_file() :
             table= table.reset_index(drop=True)
             graph=graph[graph["Perfume"]==perfume]["Mood"]
 
+            st.session_state.chart={"Mood":[],"Perfume":[]}
             
             st.markdown(f"# Mood distribution for Perfume: {perfume}")
             fig, ax = plt.subplots()
@@ -291,7 +292,7 @@ def upload_file() :
             data=mood_csv,
             file_name=f"mood_dist_{perfume}_table.csv",
             mime="text/csv"
-            st.session_state.chart={"Mood":[],"Perfume":[]}
+            
             )
 
             
