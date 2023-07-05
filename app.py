@@ -291,6 +291,7 @@ def upload_file() :
             data=mood_csv,
             file_name=f"mood_dist_{perfume}_table.csv",
             mime="text/csv"
+            st.session_state.chart={"Mood":[],"Perfume":[]}
             )
 
             
